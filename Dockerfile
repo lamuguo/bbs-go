@@ -38,8 +38,20 @@ RUN npm install -g pnpm
 RUN pnpm install
 RUN pnpm build:docker
 
+FROM node:20-alpine AS fe_runtime
+
+WORKDIR /app/bbs-go/site
+
+COPY --from=site_builder /code/bbs-go/site/.output ./site/.output
+COPY --from=site_builder /code/bbs-go/site/node_modules ./site/node_modules
+COPY ./site/fe-entrypoint.sh ./fe-entrypoint.sh
+RUN chmod +x fe-entrypoint.sh
+
+EXPOSE 3000
+ENTRYPOINT ["./fe-entrypoint.sh"]
+
 # run
-FROM node:20-alpine
+FROM node:20-alpine 
 
 ENV APP_HOME=/app/bbs-go
 WORKDIR "$APP_HOME"

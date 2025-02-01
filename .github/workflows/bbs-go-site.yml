@@ -1,6 +1,14 @@
 name: bbs-go-site
 
-on: [ push ]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
 
 jobs:
   build:
@@ -30,3 +38,30 @@ jobs:
         working-directory: ./site
         run: |
           pnpm build
+
+
+  build-and-publish:
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      DOCKERHUB_USERNAME: lamuguo
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Login to Docker Hub
+        run: echo "${{ env.DOCKERHUB_TOKEN }}" | docker login -u ${{ env.DOCKERHUB_USERNAME }} --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build --target fe_runtime -t ${{ env.DOCKERHUB_USERNAME }}/bbs_go_fe_runtime:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.DOCKERHUB_USERNAME }}/bbs_go_fe_runtime:latest
+                  
