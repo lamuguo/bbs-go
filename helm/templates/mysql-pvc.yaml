@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "forum.fullname" . }}-mysql-pvc
+  labels:
+    app: {{ include "forum.name" . }}
+    tier: mysql
+spec:
+  accessModes:
+    - {{ .Values.mysql.persistence.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.mysql.persistence.size }}
+  storageClassName: {{ .Values.mysql.persistence.storageClass | default "local-path" | quote }}

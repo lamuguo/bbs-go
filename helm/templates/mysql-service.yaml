@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "forum.fullname" . }}-mysql
+  labels:
+    app: {{ include "forum.name" . }}
+    tier: mysql
+spec:
+  ports:
+    - port: {{ .Values.mysql.service.port }}
+      targetPort: 3306
+      protocol: TCP
+      name: mysql
+  selector:
+    app: {{ include "forum.fullname" . }}-mysql

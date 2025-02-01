@@ -1,0 +1,39 @@
+ingress:
+  enabled: true
+  host: forum.eng.atomi.ai
+  annotations: {}
+  tls:
+    - secretName: forum-tls
+
+mysql:
+  image: mysql:8.0
+  username: bbsgo
+  password: "123456"
+  rootPassword: "123456"
+  database: bbsgo_db
+  service:
+    port: 3306
+  persistence:
+    enabled: true
+    storageClass: local-path   # 此处指定集群默认 StorageClass 的名称
+    accessMode: ReadWriteOnce
+    size: 8Gi
+
+bbsgo:
+  image: mlogclub/bbs-go:4.0.3
+  env:
+    BBSGO_ENV: docker
+    BBSGO_DB_URL: "root:123456@tcp(bbs-go-mysql:3306)/bbsgo_db?charset=utf8mb4&parseTime=True&loc=Local"
+    BBSGO_BASEURL: ""
+  replicaCount: 1
+
+phpmyadmin:
+  image: phpmyadmin/phpmyadmin
+  env:
+    PMA_HOST: bbs-go-mysql
+    PMA_USER: root
+    PMA_PASSWORD: "123456"
+    UPLOAD_LIMIT: 64M
+  service:
+    port: 80
+  replicaCount: 1

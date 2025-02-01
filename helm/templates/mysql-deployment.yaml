@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "forum.fullname" . }}-mysql
+  labels:
+    app: {{ include "forum.name" . }}
+    tier: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "forum.fullname" . }}-mysql
+  template:
+    metadata:
+      labels:
+        app: {{ include "forum.fullname" . }}-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: {{ .Values.mysql.image }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: "Asia/Shanghai"
+            - name: MYSQL_DATABASE
+              value: "{{ .Values.mysql.database }}"
+            - name: MYSQL_USER
+              value: "{{ .Values.mysql.username }}"
+            - name: MYSQL_PASSWORD
+              value: "{{ .Values.mysql.password }}"
+            - name: MYSQL_ROOT_PASSWORD
+              value: "{{ .Values.mysql.rootPassword }}"
+          command:
+            - "mysqld"
+            - "--character-set-server=utf8mb4"
+            - "--collation-server=utf8mb4_unicode_ci"
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+            # 如果需要初始化脚本，可以挂载一个 configMap 方式的 volume
+            # - name: mysql-init
+            #   mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: {{ include "forum.fullname" . }}-mysql-pvc
+        # 如果需要初始化脚本，请先创建对应的 ConfigMap，再启用下面的 volume
+        # - name: mysql-init
+        #   configMap:
+        #     name: {{ include "forum.fullname" . }}-mysql-init
