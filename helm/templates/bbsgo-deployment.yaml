@@ -3,31 +3,37 @@ kind: Deployment
 metadata:
   name: {{ include "forum.fullname" . }}-bbsgo
   labels:
-    app: {{ include "forum.name" . }}
-    tier: bbsgo
+    app: bbsgo
 spec:
-  replicas: {{ .Values.bbsgo.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      app: {{ include "forum.fullname" . }}-bbsgo
+      app: bbsgo
   template:
     metadata:
       labels:
-        app: {{ include "forum.fullname" . }}-bbsgo
+        app: bbsgo
     spec:
       containers:
-        - name: bbsgo
-          image: {{ .Values.bbsgo.image }}
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: BBSGO_ENV
-              value: "{{ .Values.bbsgo.env.BBSGO_ENV }}"
-            - name: BBSGO_DB_URL
-              value: "{{ .Values.bbsgo.env.BBSGO_DB_URL }}"
-            - name: BBSGO_BASEURL
-              value: "{{ .Values.bbsgo.env.BBSGO_BASEURL }}"
-          ports:
-            - containerPort: 3000
-              name: frontend
-            - containerPort: 8082
-              name: backend
+      - name: bbsgo
+        image: "{{ .Values.bbsgo.img.repository }}:{{ .Values.bbsgo.img.tag }}"
+        imagePullPolicy: {{ .Values.bbsgo.img.pullPolicy }}
+        ports:
+          - containerPort: {{ .Values.bbsgo.port }}
+        env:
+          - name: BBSGO_ENV
+            value: "{{ .Values.bbsgo.env.BBSGO_ENV }}"
+        volumeMounts:
+          - name: data-volume
+            mountPath: /data
+          - name: config-volume
+            mountPath: /app/bbs-go/server/bbs-go.{{ .Values.bbsgo.env.BBSGO_ENV }}.yaml
+            subPath: bbs-go.{{ .Values.bbsgo.env.BBSGO_ENV }}.yaml
+            readOnly: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "forum.fullname" . }}-bbsgo-config
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: {{ include "forum.fullname" . }}-bbsgo-pvc

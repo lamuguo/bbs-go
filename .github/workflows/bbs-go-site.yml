@@ -35,7 +35,7 @@ jobs:
         run: |
           pnpm install
       - name: Build
-        working-directory: ./site
+        working-directory: ./sitehttps://hub.docker.com/repository/docker/lamuguo/bbsgo_backend
         run: |
           pnpm build
 

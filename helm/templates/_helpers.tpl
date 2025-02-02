@@ -6,7 +6,7 @@ bbsgo
 {{- end -}}
 
 {{/*
-Return the full name (release name + chart name).
+Return the fully qualified name of the chart.
 */}}
 {{- define "forum.fullname" -}}
 {{- printf "%s-%s" .Release.Name (include "forum.name" .) | trunc 63 | trimSuffix "-" -}}

@@ -7,5 +7,5 @@ helm upgrade --install forum ./helm --namespace forum
 
 To diff the changes, run the following command:
 ```bash
-helm diff upgrade forum ./forum --namespace forum
+helm diff upgrade forum ./helm --namespace forum
 ```
