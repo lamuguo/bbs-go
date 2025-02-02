@@ -7,32 +7,24 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
     {{- with .Values.ingress.annotations }}
 {{ toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  {{- if .Values.ingress.tls }}
   tls:
     - hosts:
         - {{ .Values.ingress.host }}
-      secretName: {{ .Values.ingress.tls.secretName }}
-  {{- end }}
+      secretName: {{ (index .Values.ingress.tls 0).secretName | default "forum-tls" }}
   rules:
     - host: {{ .Values.ingress.host }}
       http:
         paths:
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "forum.fullname" . }}-bbsgo-be
-                port:
-                  number: 8082
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ include "forum.fullname" . }}-bbsgo-fe
+                name: {{ include "forum.fullname" . }}-fe
                 port:
-                  number: 3000
+                  number: {{ .Values.fe.service.port }}
 {{- end }}

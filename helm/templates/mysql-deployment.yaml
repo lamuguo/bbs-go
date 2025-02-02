@@ -39,14 +39,7 @@ spec:
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
-            # 如果需要初始化脚本，可以挂载一个 configMap 方式的 volume
-            # - name: mysql-init
-            #   mountPath: /docker-entrypoint-initdb.d
       volumes:
         - name: mysql-data
           persistentVolumeClaim:
             claimName: {{ include "forum.fullname" . }}-mysql-pvc
-        # 如果需要初始化脚本，请先创建对应的 ConfigMap，再启用下面的 volume
-        # - name: mysql-init
-        #   configMap:
-        #     name: {{ include "forum.fullname" . }}-mysql-init

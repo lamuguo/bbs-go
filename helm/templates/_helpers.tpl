@@ -1,18 +1,13 @@
 {{/*
-Return the name of the chart.
+Return the chart name.
 */}}
 {{- define "forum.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
-{{- end }}
+bbsgo
+{{- end -}}
 
 {{/*
-Create a default fully qualified app name.
+Return the full name (release name + chart name).
 */}}
 {{- define "forum.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name (include "forum.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-{{- end }}

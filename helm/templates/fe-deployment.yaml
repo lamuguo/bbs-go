@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "forum.fullname" . }}-fe
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "forum.name" . }}-fe
+spec:
+  replicas: {{ .Values.fe.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "forum.fullname" . }}-fe
+  template:
+    metadata:
+      labels:
+        app: {{ include "forum.fullname" . }}-fe
+    spec:
+      containers:
+        - name: fe
+          image: "{{ .Values.fe.image }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.fe.service.port }}

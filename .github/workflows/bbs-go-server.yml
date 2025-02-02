@@ -24,3 +24,30 @@ jobs:
         working-directory: ./server
         run: |
           make build
+
+
+  build-and-publish:
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      DOCKERHUB_USERNAME: lamuguo
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Login to Docker Hub
+        run: echo "${{ env.DOCKERHUB_TOKEN }}" | docker login -u ${{ env.DOCKERHUB_USERNAME }} --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build --target backend -t ${{ env.DOCKERHUB_USERNAME }}/bbsgo_backend:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ env.DOCKERHUB_USERNAME }}/bbsgo_backend:latest
+                  

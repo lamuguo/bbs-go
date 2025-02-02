@@ -1,5 +1,4 @@
 # server builder
-
 FROM golang:1.23 AS server_builder
 
 ENV APP_HOME=/code/bbs-go/server
@@ -10,7 +9,7 @@ COPY ./server ./
 RUN go mod download
 RUN CGO_ENABLED=0 go build -v -o bbs-go main.go && chmod +x bbs-go
 
-
+###############################################
 # site builder
 FROM node:20-alpine AS site_builder
 
@@ -24,7 +23,7 @@ RUN npm install -g pnpm
 RUN pnpm install
 RUN pnpm build:docker
 
-
+###############################################
 # admin builder
 FROM node:20-alpine AS admin_builder
 
@@ -38,6 +37,7 @@ RUN npm install -g pnpm
 RUN pnpm install
 RUN pnpm build:docker
 
+###############################################
 FROM node:20-alpine AS fe_runtime
 
 WORKDIR /app/bbs-go/site
@@ -50,6 +50,23 @@ RUN chmod +x fe-entrypoint.sh
 EXPOSE 3000
 ENTRYPOINT ["./fe-entrypoint.sh"]
 
+###############################################
+FROM alpine:3.21.2 AS backend
+
+ENV APP_HOME=/app/bbs-go
+WORKDIR "$APP_HOME"
+
+COPY --from=server_builder /code/bbs-go/server/bbs-go ./server/bbs-go
+COPY --from=server_builder /code/bbs-go/server/*.yaml ./server/
+
+COPY ./server/backend_start.sh ./backend_start.sh
+RUN chmod +x ./backend_start.sh
+
+EXPOSE 8082
+ENTRYPOINT ["./backend_start.sh"]
+
+
+###############################################
 # run
 FROM node:20-alpine 
 
