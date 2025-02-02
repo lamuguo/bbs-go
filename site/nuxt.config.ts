@@ -72,16 +72,5 @@ export default defineNuxtConfig({
     '~/assets/css/index.scss',
   ],
 
-  nitro: {
-    routeRules: {
-      '/api/**': {
-        proxy: `${import.meta.env.SERVER_URL}/api/**`,
-      },
-      '/admin/**': {
-        proxy: `${import.meta.env.SERVER_URL}/admin/**`,
-      },
-    },
-  },
-
   compatibilityDate: '2024-09-15',
 })
